@@ -2,9 +2,13 @@ var express = require('express')
 var app = express();
 var http = require('http').createServer(app)
 var io = require('socket.io')(http)
+var mqtt = require('mqtt');
+var mqtt_client = mqtt.connect({host:'192.168.1.5',port:'1883'});//alterar para a porta do nosso server na hora
+
 
 const WEB_PAGE_PORT = 8080
 var server_start_time = Date.now();
+var battery_charge = new Array();
 
 console.log( "Server start time: " + Date( server_start_time.valueOf() ) )
 
@@ -24,3 +28,47 @@ io.on('connection',function(socket){
     socket.emit('server_start_time',server_start_time)
 })
 
+//se inscreve no mqtt que cada sensor vai mandar
+
+mqtt_client.on('connect',function(){
+    
+    mqtt_client.subscribe('servo_read',function(err){
+        if(!err){
+            console.log("mqtt conected")
+        }
+    });
+    mqtt_client.subscribe('battery_read',function(err){
+        if(!err){
+            console.log("mqtt conected")
+        }
+    });
+    mqtt_client.subscribe('ldr1_read',function(err){
+        if(!err){
+            console.log("mqtt conected")
+        }
+    });
+    mqtt_client.subscribe('ldr2_read',function(err){
+        if(!err){
+            console.log("mqtt conected")
+        }
+    });
+})
+
+//repassa as mensagens para o front, se for de bateria salva no log
+//        io.emit('battery_log',String(battery_log));
+
+
+mqtt_client.on('message',function(topic,msg){
+    if(topic ="battery_read"){
+        //como o grafico é de carga da bateria acho que salvar dês de que o server inicia faz sentido,
+        // só temos que ver uma estrutura boa para isso, botei num array só por questoes de fazer agora 
+        var battery_charge=parseFloat(msg.toString());
+        battery_charge.push(battery_log);
+    }
+    io.emit(topic,msg.toString());
+});
+
+setInterval(function(){
+    io.emit('battery_log',battery_log);
+    console.log('sending battery log')
+},5000);
