@@ -8,7 +8,11 @@ var mqtt_client = mqtt.connect({host:'192.168.1.5',port:'1883'});//alterar para 
 
 const WEB_PAGE_PORT = 8080
 var server_start_time = Date.now();
-var battery_charge = new Array();
+var battery_log = new Array();
+var servo;
+var battery;
+var ldr1;
+var ldr2;
 
 console.log( "Server start time: " + Date( server_start_time.valueOf() ) )
 
@@ -23,9 +27,13 @@ http.listen( WEB_PAGE_PORT , function(){
 })
 
 io.on('connection',function(socket){
-    console.log("Someone connected")
-    console.log("Websocket connected: " + socket.id )
-    socket.emit('server_start_time',server_start_time)
+    console.log("Someone connected");
+    console.log("Websocket connected: " + socket.id );
+    socket.emit('server_start_time',server_start_time);
+    socket.emit('battery_read',battery);
+    socket.emit('servo_read',servo);
+    socket.emit('ldr1_read',ldr1);
+    socket.emit('ldr2_read',ldr2);
 })
 
 //se inscreve no mqtt que cada sensor vai mandar
@@ -59,12 +67,18 @@ mqtt_client.on('connect',function(){
 
 
 mqtt_client.on('message',function(topic,msg){
-    if(topic ="battery_read"){
+    if(topic =="battery_read"){
         //como o grafico é de carga da bateria acho que salvar dês de que o server inicia faz sentido,
         // só temos que ver uma estrutura boa para isso, botei num array só por questoes de fazer agora 
-        var battery_charge=parseFloat(msg.toString());
-        battery_charge.push(battery_log);
+        battery=parseFloat(msg.toString());
+        battery_log.push(battery);
     }
+    if(topic=="servo_read")
+        servo = msg.toString();
+    if(topic == "ldr1_read")
+        ldr1 = msg.toString();
+    if(topic == "ldr2_read")
+        ldr2 = msg.toString();
     io.emit(topic,msg.toString());
 });
 

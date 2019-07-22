@@ -28,7 +28,7 @@
                         <b>Carga da bateria:</b> 
                     </td>
                     <td>
-                        <span id="charge">0%</span>
+                        <span id="charge"></span>%
                     </td>
                 </tr>
             </table>
@@ -37,6 +37,7 @@
         <!-- Painel de angulação -->
         <div class="panel">
             <h2>Angulação</h2>
+            <p><span id="angle"></span> Graus</p>
         </div>
         
         <!-- Painel com gráficos sobre corrente, carga etc -->
@@ -47,6 +48,7 @@
         <!-- Painel com gráficos sobre a intensidade da luz -->
         <div class="panel">
             <h2>Intensidade de luz</h2>
+            <p>Sensor1: <span id="ldr1"></span> | Sensor2: <span id="ldr2"></span></p>
         </div>
 
         <!-- Painel pra ???? -->
@@ -56,22 +58,7 @@
                 
     </div>
 
-    <script>
-        var socket = io();
-        var uptime_text = document.getElementById("uptime")
-        var server_start_time = Date.now();
-        
-        // Atualizando o server uptime
-        socket.on('server_start_time',function(arg){
-            server_start_time = arg
-            uptime_text.innerText = tempoEmString(Date.now() - server_start_time ); 
-            setInterval(function(){
-                uptime_text.innerText = tempoEmString(Date.now() - server_start_time ); 
-            } , 1000 )
-        })
-
-
-    </script>
+<script src="script.js"></script>
 
 
 </body>

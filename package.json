@@ -4,6 +4,7 @@
     "description": "Web interface for a simple automated solar panel",
     "dependencies": {
         "express": "^4.17.1",
+        "mqtt": "^3.0.0",
         "socket.io": "^2.2.0"
     }
 }
