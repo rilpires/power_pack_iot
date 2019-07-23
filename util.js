@@ -20,6 +20,7 @@ function tempoEmString( ms ){
     if( dias > 0 ) ret = dias + " dias, " + ret
     if( meses > 0 ) ret = meses + " meses, " + ret
     if( anos > 0 ) ret = anos + " anos, " + ret
-    
+
     return ret;
 }
+

@@ -4,7 +4,9 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset="UTF-8">
     <script src='node_modules/socket.io-client/dist/socket.io.js'></script>
-    <script src="util.js"></script>
+    <script src='node_modules/chart.js/dist/Chart.min.js'></script>
+    <script src='node_modules/chart.js/dist/Chart.js'></script>
+    <script src="client_util.js"></script>
 </head>
 <!--.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-->
 <body class="background" >
@@ -12,7 +14,7 @@
     <div class="mainContainer" >
         
         <!-- Painel com informações mais gerais como tempo de servidor ligado -->
-        <div class="panel" style="width: 600px" >
+        <div class="panel" style="width: 600px ; text-shadow: 1px 1px 3px red" >
             <h1> Servidor </h1>
             <table style="width:95%">
                 <tr>
@@ -35,32 +37,54 @@
         </div>
 
         <!-- Painel de angulação -->
-        <div class="panel">
+        <div class="panel" style="text-shadow: 1px 1px 3px violet">
             <h2>Angulação</h2>
+            <table style="width: 95%">
+                <tr><td><b>Ângulo atual:</b></td> <td><span id='last_angle'></span></td></tr>
+                <tr><td><b>Angulação automática:</b></td> <td><input id='auto_angle' type="checkbox" disabled='true'> </td></tr>
+            </table>
+            <p> 
+                <b>Fixar ângulo:</b> <span id='client_angle'></span> 
+                <br>
+                (-90°)<input id='angle_range' type="range" disabled='true' min="-90" max="90">(+90°)
+            </p>
+
+            <canvas id='angle_chart' width="400px" height="150px" ></canvas>
         </div>
         
         <!-- Painel com gráficos sobre corrente, carga etc -->
-        <div class="panel">
+        <div class="panel" style="text-shadow: 1px 1px 3px rgba(110,110,255,1)">
             <h2>Carga da bateria</h2>
         </div>
 
         <!-- Painel com gráficos sobre a intensidade da luz -->
-        <div class="panel">
+        <div class="panel" style="text-shadow: 1px 1px 3px yellow">
             <h2>Intensidade de luz</h2>
+            <p>
+                <b>Valor atual:</b><span>a</span>
+            </p>
+            <canvas id='ldr_chart' width="400px" height="150px" ></canvas>
         </div>
 
         <!-- Painel pra ???? -->
-        <div class="panel">
+        <div class="panel" style="text-shadow: 1px 1px 3px rgba(110,255,111,1)">
             <h2>????</h2>
         </div>
                 
     </div>
 
     <script>
+        // DOM elements
+        var DOM_ANGLE_RANGE = document.getElementById('angle_range')
+        var DOM_ANGLE_LAST_INFO = document.getElementById('last_angle')
+        var DOM_AUTO_ANGLE = document.getElementById('auto_angle')
+        var DOM_CLIENT_ANGLE = document.getElementById('client_angle')
+
         var socket = io();
         var uptime_text = document.getElementById("uptime")
         var server_start_time = Date.now();
         
+
         // Atualizando o server uptime
         socket.on('server_start_time',function(arg){
             server_start_time = arg
@@ -70,6 +94,44 @@
             } , 1000 )
         })
 
+        socket.on('server_data',function(arg){
+            createLdrChart( arg , document.getElementById('ldr_chart') )
+            createAngleChart( arg , document.getElementById('angle_chart') )
+            
+
+            DOM_AUTO_ANGLE.hidden = false
+            DOM_ANGLE_RANGE.hidden = false
+
+            DOM_AUTO_ANGLE.checked = false // Ler estado do servidor
+            DOM_ANGLE_RANGE.disabled = DOM_AUTO_ANGLE.checked
+
+            DOM_AUTO_ANGLE.onchange = function( ev ){
+                var checked = DOM_AUTO_ANGLE.checked
+                DOM_ANGLE_RANGE.disabled = checked
+                if( checked ){
+                    DOM_CLIENT_ANGLE.innerText = ""
+                }
+                // Enviar para o servidor função de angulo automatico ou não
+            }
+            
+            DOM_ANGLE_RANGE.onmousemove = function(){
+                if( DOM_AUTO_ANGLE.checked == false ){
+                    DOM_CLIENT_ANGLE.innerText = DOM_ANGLE_RANGE.value + "°"
+                }
+            }
+            DOM_ANGLE_RANGE.onchange = function(){
+                if( DOM_AUTO_ANGLE.checked == false ){
+                    // Enviar para o servidor um novo ângulo fixo
+                    
+                }
+            }
+
+        })
+
+        
+
+
+        
 
     </script>
 
