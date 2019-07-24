@@ -54,15 +54,16 @@
         
         <!-- Painel com gráficos sobre corrente, carga etc -->
         <div class="panel" style="text-shadow: 1px 1px 3px rgba(110,110,255,1)">
-            <h2>Carga da bateria</h2>
+            <h2>Corrente elétrica</h2>
+            <b>Último valor lido:</b><span id='last_current_read'></span>
+            <br>
+            <canvas id='current_chart' width="400px" height="150px" ></canvas>
         </div>
 
         <!-- Painel com gráficos sobre a intensidade da luz -->
         <div class="panel" style="text-shadow: 1px 1px 3px yellow">
             <h2>Intensidade de luz</h2>
-            <p>
-                <b>Valor atual:</b><span>a</span>
-            </p>
+            <b>Valor atual:</b><span>a</span>
             <canvas id='ldr_chart' width="400px" height="150px" ></canvas>
         </div>
 
@@ -79,6 +80,7 @@
         var dom_last_angle_info = document.getElementById('last_angle')
         var dom_auto_angle = document.getElementById('auto_angle')
         var dom_client_angle = document.getElementById('client_angle')
+        var dom_last_current_info = document.getElementById('last_current_read')
 
         var socket = io();
         var uptime_text = document.getElementById("uptime")
@@ -97,7 +99,7 @@
         socket.on('server_data',function(arg){
             createLdrChart( arg , document.getElementById('ldr_chart') )
             createAngleChart( arg , document.getElementById('angle_chart') )
-            
+            createCurrentChart( arg , document.getElementById('current_chart'))
 
             dom_auto_angle.hidden = false
             dom_angle_range.hidden = false

@@ -81,10 +81,15 @@ function createLdrChart( arg , canvas_dom ){
         
         data: {
             datasets: [{
-                label: "Intensidade",
+                label: "LDR 1",
                 data : data_points,
                 fill: 'origin',
                 backgroundColor: "rgba(240,240,60,1)"
+            },{
+                label: "LDR 2",
+                data : data_points,
+                fill: 'origin',
+                backgroundColor: "rgba(140,140,60,1)"
             }]
         }
 
@@ -153,6 +158,74 @@ function createAngleChart( arg , canvas_dom ){
                 data : data_points,
                 fill: 'origin',
                 backgroundColor: "rgba(120,60,120,1)"
+            }]
+        }
+
+    })
+
+}
+
+function createCurrentChart( arg , canvas_dom ){
+    var data_points = Array( arg[0].length )
+    for( var i in arg[0] ){
+        var point = {
+            x: (arg[0])[i],
+            y: (arg[1])[i],
+        }
+        data_points[i] = point
+    }
+    var current_chart_context = new Chart( canvas_dom , {
+        type : "scatter" , 
+        
+        // Opcoes pra otimizar processamento com muitos pontos
+        options: {
+            responsive: false,
+            animation: {
+                duration: 0
+            },
+            hover: {
+                animationDuration: 0 
+            },
+            responsiveAnimationDuration: 0,
+            elements:{
+                line:{
+                    tension: 0
+                },
+                point:{
+                    radius:2,
+                }
+            },
+            scales: {
+                yAxes: [{
+                    type: 'linear',
+                    ticks: {
+                        min:-100,
+                        max:100
+                    }
+                }],
+                xAxes:[{
+                    type: 'linear',
+                    ticks:{
+                        min:0,
+                        max:(3600*24),
+                        stepSize:1,
+                        maxTicksLimit:24,
+                        callback:(value,index,values)=>{
+                            return Math.floor(value/3600)
+                        }
+                    }
+                }]
+            },
+            showLines:true,
+            
+        },
+        
+        data: {
+            datasets: [{
+                label: "Corrente elétrica",
+                data : data_points,
+                fill: 'origin',
+                backgroundColor: "rgba(90,90,225,1)"
             }]
         }
 

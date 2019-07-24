@@ -19,6 +19,7 @@ var connected_websockets = new Set();
 var last_servo_read = null;
 var last_ldr1_read = null;
 var last_ldr2_read = null;
+var last_servo_mode_read = null;
 
 // Folders where we storage log data
 var folders_to_create = [
@@ -69,11 +70,14 @@ mqtt_client.on('message',function(topic,msg){
         case 'servo_read':
             last_servo_read = parseInt(msg)
             file_logging.appendValue('servo',last_servo_read)
+            break
         case 'ldr1_read':
             last_ldr1_read = parseInt(msg)
             file_logging.appendValue('ldr1',last_ldr1_read)
+            break
         case 'ldr2_read':
             last_ldr2_read = parseInt(msg)
             file_logging.appendValue('ldr2',last_ldr2_read)
+            break
     }
 });
