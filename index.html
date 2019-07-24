@@ -30,7 +30,7 @@
                         <b>Carga da bateria:</b> 
                     </td>
                     <td>
-                        <span id="charge">0%</span>
+                        <span id="charge"></span>%
                     </td>
                 </tr>
             </table>
@@ -75,10 +75,10 @@
 
     <script>
         // DOM elements
-        var DOM_ANGLE_RANGE = document.getElementById('angle_range')
-        var DOM_ANGLE_LAST_INFO = document.getElementById('last_angle')
-        var DOM_AUTO_ANGLE = document.getElementById('auto_angle')
-        var DOM_CLIENT_ANGLE = document.getElementById('client_angle')
+        var dom_angle_range = document.getElementById('angle_range')
+        var dom_last_angle_info = document.getElementById('last_angle')
+        var dom_auto_angle = document.getElementById('auto_angle')
+        var dom_client_angle = document.getElementById('client_angle')
 
         var socket = io();
         var uptime_text = document.getElementById("uptime")
@@ -99,28 +99,29 @@
             createAngleChart( arg , document.getElementById('angle_chart') )
             
 
-            DOM_AUTO_ANGLE.hidden = false
-            DOM_ANGLE_RANGE.hidden = false
+            dom_auto_angle.hidden = false
+            dom_angle_range.hidden = false
 
-            DOM_AUTO_ANGLE.checked = false // Ler estado do servidor
-            DOM_ANGLE_RANGE.disabled = DOM_AUTO_ANGLE.checked
+            dom_auto_angle.disabled = false
+            dom_auto_angle.checked = false // Ler estado do servidor
+            dom_angle_range.disabled = dom_auto_angle.checked
 
-            DOM_AUTO_ANGLE.onchange = function( ev ){
-                var checked = DOM_AUTO_ANGLE.checked
-                DOM_ANGLE_RANGE.disabled = checked
+            dom_auto_angle.onchange = function( ev ){
+                var checked = dom_auto_angle.checked
+                dom_angle_range.disabled = checked
                 if( checked ){
-                    DOM_CLIENT_ANGLE.innerText = ""
+                    dom_client_angle.innerText = ""
                 }
                 // Enviar para o servidor função de angulo automatico ou não
             }
             
-            DOM_ANGLE_RANGE.onmousemove = function(){
-                if( DOM_AUTO_ANGLE.checked == false ){
-                    DOM_CLIENT_ANGLE.innerText = DOM_ANGLE_RANGE.value + "°"
+            dom_angle_range.onmousemove = function(){
+                if( dom_auto_angle.checked == false ){
+                    dom_client_angle.innerText = dom_angle_range.value + "°"
                 }
             }
-            DOM_ANGLE_RANGE.onchange = function(){
-                if( DOM_AUTO_ANGLE.checked == false ){
+            dom_angle_range.onchange = function(){
+                if( dom_auto_angle.checked == false ){
                     // Enviar para o servidor um novo ângulo fixo
                     
                 }
