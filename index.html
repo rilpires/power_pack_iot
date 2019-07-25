@@ -14,9 +14,9 @@
     <div class="mainContainer" >
         
         <!-- Painel com informações mais gerais como tempo de servidor ligado -->
-        <div class="panel" style="width: 600px ; text-shadow: 1px 1px 3px red" >
+        <div class="panel" style="width: 60% ; text-shadow: 1px 1px 3px red" >
             <h1> Servidor </h1>
-            <table style="width:95%">
+            <table>
                 <tr>
                     <td>
                         <b>Tempo de servidor ligado:</b> 
@@ -39,11 +39,11 @@
         <!-- Painel de angulação -->
         <div class="panel" style="text-shadow: 1px 1px 3px violet">
             <h2>Angulação</h2>
-            <table style="width: 95%">
-                <tr><td><b>Ângulo atual:</b></td> <td><span id='last_angle'></span></td></tr>
+            <table>
+                <tr><td><b>Último valor lido:</b></td> <td><span id='last_angle'></span></td></tr>
                 <tr><td><b>Angulação automática:</b></td> <td><input id='auto_angle' type="checkbox" disabled='true'> </td></tr>
             </table>
-            <p> 
+            <p id='angle_range_div'> 
                 <b>Fixar ângulo:</b> <span id='client_angle'></span> 
                 <br>
                 (-90°)<input id='angle_range' type="range" disabled='true' min="-90" max="90">(+90°)
@@ -55,15 +55,19 @@
         <!-- Painel com gráficos sobre corrente, carga etc -->
         <div class="panel" style="text-shadow: 1px 1px 3px rgba(110,110,255,1)">
             <h2>Corrente elétrica</h2>
-            <b>Último valor lido:</b><span id='last_current_read'></span>
-            <br>
+            <table>
+                <tr> <td><b>Último valor lido:</b></td>  <td><span id='last_current_read'></span></td> </tr>
+            </table>
             <canvas id='current_chart' width="400px" height="150px" ></canvas>
         </div>
 
         <!-- Painel com gráficos sobre a intensidade da luz -->
         <div class="panel" style="text-shadow: 1px 1px 3px yellow">
             <h2>Intensidade de luz</h2>
-            <b>Valor atual:</b><span>a</span>
+            <table> 
+                    <tr> <td><b>Último valor lido(LDR1):</b></td> <td><span id='last_ldr1_read'></span></td> </tr>
+                    <tr> <td><b>Último valor lido(LDR2):</b></td> <td><span id='last_ldr2_read'></span></td> </tr>
+            </table>
             <canvas id='ldr_chart' width="400px" height="150px" ></canvas>
         </div>
 
@@ -77,10 +81,13 @@
     <script>
         // DOM elements
         var dom_angle_range = document.getElementById('angle_range')
+        var dom_angle_range_div = document.getElementById('angle_range_div')
         var dom_last_angle_info = document.getElementById('last_angle')
         var dom_auto_angle = document.getElementById('auto_angle')
         var dom_client_angle = document.getElementById('client_angle')
         var dom_last_current_info = document.getElementById('last_current_read')
+        var dom_last_ldr1_info = document.getElementById('last_ldr1_read')
+        var dom_last_ldr2_info = document.getElementById('last_ldr2_read')
 
         var socket = io();
         var uptime_text = document.getElementById("uptime")
@@ -96,21 +103,19 @@
             } , 1000 )
         })
 
-        socket.on('server_data',function(arg){
-            createLdrChart( arg , document.getElementById('ldr_chart') )
-            createAngleChart( arg , document.getElementById('angle_chart') )
-            createCurrentChart( arg , document.getElementById('current_chart'))
-
-            dom_auto_angle.hidden = false
-            dom_angle_range.hidden = false
+        // Primeiro pacote recebido pelo servidor com o log de todos os valores do dia
+        socket.on('first_server_data',function(arg){
+            createLdrChart( arg.ldr1_log , arg.ldr2_log , document.getElementById('ldr_chart') )
+            createAngleChart( arg.servo_log , document.getElementById('angle_chart') )
+            createCurrentChart( arg.current_log , document.getElementById('current_chart'))
 
             dom_auto_angle.disabled = false
             dom_auto_angle.checked = false // Ler estado do servidor
-            dom_angle_range.disabled = dom_auto_angle.checked
+            dom_angle_range_div.hidden = dom_auto_angle.checked
 
             dom_auto_angle.onchange = function( ev ){
                 var checked = dom_auto_angle.checked
-                dom_angle_range.disabled = checked
+                dom_angle_range_div.hidden = dom_auto_angle.checked
                 if( checked ){
                     dom_client_angle.innerText = ""
                 }
@@ -131,8 +136,26 @@
 
         })
 
-        
-
+        // Pequenos pacotes recebidos periodicamente com os últimos valores lidos de alguma medida
+        socket.on('periodic_server_data',function(msg){
+            switch( msg.topic ){
+                case 'servo':
+                    dom_last_angle_info.innerText = msg.value
+                    break;
+                case 'ldr1':
+                    dom_last_ldr1_info.innerText = msg.value
+                    break;
+                case 'ldr2':
+                    dom_last_ldr2_info.innerText = msg.value
+                    break;
+                case 'current':
+                    dom_last_current_info = msg.value
+                    break;
+                case 'servo_mode':
+                    
+                    break;
+            }
+        })
 
         
 

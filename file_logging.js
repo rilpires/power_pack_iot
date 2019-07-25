@@ -22,15 +22,17 @@ exports.getValues = function( f_preffix , date = new Date(Date.now()) ){
     var filepath    = "log/"+f_preffix+"/"+filename
     var ret = [ [] , [] ]
     console.log("Abrindo : " + filepath )
-    var data = fs.readFileSync(filepath,'utf-8')
-    if(data){
-        var lines = data.split('\n')
-        for( var line of lines )if( line.length > 1){
-            var splitted = line.split(' ')
-            var x = Math.floor(parseInt( splitted[0] ))
-            var y = Math.floor(parseInt( splitted[1] ))
-            ret[0].push(x)
-            ret[1].push(y)
+    if( fs.existsSync(filepath) ){
+        var data = fs.readFileSync(filepath,'utf-8')
+        if(data){
+            var lines = data.split('\n')
+            for( var line of lines )if( line.length > 1){
+                var splitted = line.split(' ')
+                var x = Math.floor(parseInt( splitted[0] ))
+                var y = Math.floor(parseInt( splitted[1] ))
+                ret[0].push(x)
+                ret[1].push(y)
+            }
         }
     }
     return ret

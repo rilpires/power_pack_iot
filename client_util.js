@@ -24,14 +24,22 @@ function tempoEmString( ms ){
     return ret;
 }
 
-function createLdrChart( arg , canvas_dom ){
-    var data_points = Array( arg[0].length )
-    for( var i in arg[0] ){
+function createLdrChart( ldr1_log , ldr2_log , canvas_dom ){
+    var data_points_ldr1 = Array( ldr1_log[0].length )
+    var data_points_ldr2 = Array( ldr2_log[0].length )
+    for( var i in ldr1_log[0] ){
         var point = {
-            x: (arg[0])[i],
-            y: (arg[1])[i],
+            x: (ldr1_log[0])[i],
+            y: (ldr1_log[1])[i],
         }
-        data_points[i] = point
+        data_points_ldr1[i] = point
+    }
+    for( var i in ldr2_log[0] ){
+        var point = {
+            x: (ldr2_log[0])[i],
+            y: (ldr2_log[1])[i],
+        }
+        data_points_ldr2[i] = point
     }
     var ldr_chart_context = new Chart( canvas_dom , {
         type : "scatter" , 
@@ -67,7 +75,7 @@ function createLdrChart( arg , canvas_dom ){
                     ticks:{
                         min:0,
                         max:(3600*24),
-                        stepSize:1,
+                        stepSize:3600,
                         maxTicksLimit:24,
                         callback:(value,index,values)=>{
                             return Math.floor(value/3600)
@@ -82,12 +90,12 @@ function createLdrChart( arg , canvas_dom ){
         data: {
             datasets: [{
                 label: "LDR 1",
-                data : data_points,
+                data : data_points_ldr1,
                 fill: 'origin',
                 backgroundColor: "rgba(240,240,60,1)"
             },{
                 label: "LDR 2",
-                data : data_points,
+                data : data_points_ldr2,
                 fill: 'origin',
                 backgroundColor: "rgba(140,140,60,1)"
             }]
@@ -97,12 +105,12 @@ function createLdrChart( arg , canvas_dom ){
 
 }
 
-function createAngleChart( arg , canvas_dom ){
-    var data_points = Array( arg[0].length )
-    for( var i in arg[0] ){
+function createAngleChart( servo_log , canvas_dom ){
+    var data_points = Array( servo_log[0].length )
+    for( var i in servo_log[0] ){
         var point = {
-            x: (arg[0])[i],
-            y: (arg[1])[i],
+            x: (servo_log[0])[i],
+            y: (servo_log[1])[i],
         }
         data_points[i] = point
     }
@@ -140,7 +148,7 @@ function createAngleChart( arg , canvas_dom ){
                     ticks:{
                         min:0,
                         max:(3600*24),
-                        stepSize:1,
+                        stepSize:3600,
                         maxTicksLimit:24,
                         callback:(value,index,values)=>{
                             return Math.floor(value/3600)
@@ -165,12 +173,12 @@ function createAngleChart( arg , canvas_dom ){
 
 }
 
-function createCurrentChart( arg , canvas_dom ){
-    var data_points = Array( arg[0].length )
-    for( var i in arg[0] ){
+function createCurrentChart( current_log , canvas_dom ){
+    var data_points = Array( current_log[0].length )
+    for( var i in current_log[0] ){
         var point = {
-            x: (arg[0])[i],
-            y: (arg[1])[i],
+            x: (current_log[0])[i],
+            y: (current_log[1])[i],
         }
         data_points[i] = point
     }
@@ -208,11 +216,11 @@ function createCurrentChart( arg , canvas_dom ){
                     ticks:{
                         min:0,
                         max:(3600*24),
-                        stepSize:1,
+                        stepSize:3600,
                         maxTicksLimit:24,
                         callback:(value,index,values)=>{
                             return Math.floor(value/3600)
-                        }
+                        },
                     }
                 }]
             },
