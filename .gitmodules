@@ -1,0 +1,4 @@
+[submodule "iotSolarStation"]
+	path = iotSolarStation
+	url = https://github.com/brenotome/iotSolarStation.git
+	branch = master
