@@ -110,7 +110,7 @@
             createCurrentChart( arg.current_log , document.getElementById('current_chart'))
 
             dom_auto_angle.disabled = false
-            dom_auto_angle.checked = false // Ler estado do servidor
+            dom_auto_angle.checked = (arg.servo_mode == 'auto')
             dom_angle_range_div.hidden = dom_auto_angle.checked
 
             dom_auto_angle.onchange = function( ev ){
@@ -152,7 +152,8 @@
                     dom_last_current_info = msg.value
                     break;
                 case 'servo_mode':
-                    
+                    console.log("eita, valor recebido: " + msg.value.toString() )
+                    dom_auto_angle.checked = ( msg.value.toString() == "auto" )
                     break;
             }
         })

@@ -1,5 +1,5 @@
 const WEB_PAGE_PORT = 8080
-const MQTT_SERVER_HOST = '192.168.1.5'
+const MQTT_SERVER_HOST = 'broker.hivemq.com'
 const MQTT_SERVER_PORT = '1883'
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -20,7 +20,7 @@ var last_servo_read = null;
 var last_ldr1_read = null;
 var last_ldr2_read = null;
 var last_current_read = null;
-var last_servo_mode_read = null;
+var last_servo_mode_read = "auto";
 
 // Folders where we storage log data
 var folders_to_create = [
@@ -65,7 +65,7 @@ io.on('connection',function(socket){
 // Subscribing in topics
 var mqtt_client = mqtt.connect({host:MQTT_SERVER_HOST,port:MQTT_SERVER_PORT});
 mqtt_client.on('connect',function(){
-    var topics_to_subscribe = [ 'servo_read' , 'ldr1_read' , 'ldr2_read' ]
+    var topics_to_subscribe = [ 'power_pack/servo' , 'power_pack/ldr1' , 'power_pack/ldr2' , 'power_pack/servo_mode' ]
     for( let topic of topics_to_subscribe ){
         mqtt_client.subscribe(topic,function(err){
             if(err) console.log('Couldn\'t subscribe to topic: ' + topic )
@@ -77,31 +77,37 @@ mqtt_client.on('connect',function(){
 mqtt_client.on('message',function(topic,msg){
     // Para cada caso, atualizamos o último valor lido, armazenamos no arquivo de log e atualizamos cada websocket conectado
     switch(topic){
-        case 'servo_read':
+        case 'power_pack/servo':
             last_servo_read = parseInt(msg)
             file_logging.appendValue('servo',last_servo_read)
             var ws_msg = {topic:'servo',value:last_servo_read}
             for( let socket of connected_websockets )
                 socket.emit('periodic_server_data',ws_msg)
             break
-        case 'ldr1_read':
+        case 'power_pack/ldr1':
             last_ldr1_read = parseInt(msg)
             file_logging.appendValue('ldr1',last_ldr1_read)
             var ws_msg = {topic:'ldr1',value:last_ldr1_read}
             for( let socket of connected_websockets )
                 socket.emit('periodic_server_data',ws_msg)
             break
-        case 'ldr2_read':
+        case 'power_pack/ldr2':
             last_ldr2_read = parseInt(msg)
             file_logging.appendValue('ldr2',last_ldr2_read)
             var ws_msg = {topic:'ldr2',value:last_ldr2_read}
             for( let socket of connected_websockets )
                 socket.emit('periodic_server_data',ws_msg)
             break
-        case 'current_read':
+        case 'power_pack/current_read':
             last_current_read = parseInt(msg)
             file_logging.appendValue('current',last_current_read)
             var ws_msg = {topic:'current',value:last_current_read}
+            for( let socket of connected_websockets )
+                socket.emit('periodic_server_data',ws_msg)
+            break
+        case 'power_pack/servo_mode':
+            last_servo_mode_read = String.fromCharCode.apply(null,new Uint8Array(msg))
+            var ws_msg = {topic:'servo_mode',value:last_servo_mode_read}
             for( let socket of connected_websockets )
                 socket.emit('periodic_server_data',ws_msg)
             break
